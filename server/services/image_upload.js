@@ -61,7 +61,7 @@ exports.uploadArray = (files) => {
         for (each in files) {
             let params = {
                 Body: '',
-                Bucket: process.env.AWS_S3_BUCKET_NAME,
+                Bucket:process.env.AWS_S3_BUCKET_NAME,
                 Key: files[each]["originalname"]
             };
             let FileBuffer = files[each];
