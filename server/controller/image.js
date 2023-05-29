@@ -4,7 +4,7 @@ const catchAsync = require('../utils/catchAsync');
 const Upload = catchAsync(async (req, res) => {
     if (req.files != '') {
         let files = req.files;
-
+        console.log(files);
         if (files) {
             if (files.length == 1) {
                 const { buffer, originalname } = files[0];
