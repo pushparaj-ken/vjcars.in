@@ -10,7 +10,7 @@ const upload = multer({});
 
 const imageController = require('../controller/image');
 
-router.post('/upload', upload.array('image', 10), imageController.Upload);
+router.post('/upload', upload.any(), imageController.Upload);
 
 
 module.exports = router
