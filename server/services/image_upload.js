@@ -27,7 +27,7 @@ exports.upload = (file, fileName) => {
         if (imgext.indexOf(extension_of_file) > -1) {
             Sharp(file)
                 .webp({ quality: 20 })
-                .resize(700, 700, {
+                .resize(1000, 1000, {
                     fit: Sharp.fit.inside,
                     withoutEnlargement: true,
                 })
