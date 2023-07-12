@@ -1,7 +1,9 @@
 const imageUpload = require('../services/image_upload');
+const commonfuncrion = require('../controller/common_controller');
 const catchAsync = require('../utils/catchAsync');
 
 const Upload = catchAsync(async (req, res) => {
+    let values = req.body;
     if (req.files != '') {
         let files = req.files;
         console.log(files);
@@ -12,7 +14,13 @@ const Upload = catchAsync(async (req, res) => {
                 let response = {};
                 response.success = true;
                 response.location = aadharPATH.Location;
-                res.send(response);
+                let tablename = "tbl_car_gallery";
+                let Data = {};
+                Data.car_id = values.car_id
+                Data.images = aadharPATH.Location
+                let ResponseJson = await commonfuncrion.singleRowInsert(tablename, Data);
+                console.log(ResponseJson.insertId);
+                res.send(ResponseJson);
             }
             else {
                 aadharPATH = await UploadMultipleFilesToS3(files, "image");
