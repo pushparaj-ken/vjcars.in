@@ -1,9 +1,14 @@
 const imageUpload = require('../services/image_upload');
-const commonfuncrion = require('../controller/common_controller');
+const commonfunction = require('../controller/common_controller');
 const catchAsync = require('../utils/catchAsync');
 
 const Upload = catchAsync(async (req, res) => {
     let values = req.body;
+    console.log(values);
+    if (values.slug == '') {
+        let slug = await slugify(values.title);
+        values.slug = slug;
+    }
     if (req.files != '') {
         let files = req.files;
         console.log(files);
@@ -14,20 +19,30 @@ const Upload = catchAsync(async (req, res) => {
                 let response = {};
                 response.success = true;
                 response.location = aadharPATH.Location;
-                let tablename = "tbl_car_gallery";
-                let Data = {};
-                Data.car_id = values.car_id
-                Data.images = aadharPATH.Location
-                let ResponseJson = await commonfuncrion.singleRowInsert(tablename, Data);
+                let tablename = values.tablename;
+                let redirecturl = values.url;
+                values.images = aadharPATH.Location
+                let ResponseJson = await commonfunction.singleRowInsert(tablename, values);
                 console.log(ResponseJson.insertId);
-                res.send(ResponseJson);
+                console.log(redirecturl);
+                // res.send(ResponseJson);
+                return res.redirect(redirecturl);
             }
             else {
                 aadharPATH = await UploadMultipleFilesToS3(files, "image");
                 let response = {};
                 response.success = true;
                 response.location = aadharPATH;
-                res.send(response);
+                let tablename = values.tablename;
+                let redirecturl = values.url;
+                for (each in aadharPATH) {
+
+                    values.images = aadharPATH[each]
+                    let ResponseJson = await commonfunction.singleRowInsert(tablename, values);
+                    console.log(ResponseJson.insertId);
+                }
+
+                return res.redirect(redirecturl);
 
             }
         }
@@ -35,6 +50,43 @@ const Upload = catchAsync(async (req, res) => {
         let response = {};
         response.success = false;
         res.send(response);
+    }
+});
+
+const UpdateUpload = catchAsync(async (req, res) => {
+    let values = req.body;
+    console.log(values);
+    if (values.slug == '') {
+        let slug = await slugify(values.title);
+        values.slug = slug;
+    }
+    if (req.files != '') {
+        let files = req.files;
+        console.log(files);
+        if (files) {
+            const { buffer, originalname } = files[0];
+            let aadharPATH = await imageUpload.upload(buffer, originalname);
+            let response = {};
+            let redirecturl = values.url;
+            response.success = true;
+            response.location = aadharPATH.Location;
+            let tablename = values.tablename;
+            values.images = aadharPATH.Location
+            values.id = values.row_id
+            let ResponseJson = await commonfunction.singleRowUpdate(tablename, values);
+            console.log(ResponseJson);
+            // res.send(ResponseJson);
+            return res.redirect(redirecturl);
+        }
+
+    } else {
+        let tablename = values.tablename;
+        let redirecturl = values.url;
+        // values.images = aadharPATH.Location
+        values.id = values.row_id
+        let ResponseJson = await commonfunction.singleRowUpdate(tablename, values);
+        console.log(ResponseJson);
+        return res.redirect(redirecturl);
     }
 });
 
@@ -88,7 +140,22 @@ const UploadMultipleFilesToS3 = (files) => {
     });
 }
 
+function slugify(text) {
+    text = text.replace(/[^\p{L}\d]+/gu, '-');
+    text = text.normalize('NFKD').replace(/[\u0300-\u036F]/g, '');
+    text = text.replace(/[^-\w]+/g, '');
+    text = text.replace(/-+/g, '-');
+    text = text.trim().toLowerCase();
+
+    if (text.length === 0) {
+        return 'n-a';
+    }
+
+    return text;
+}
+
 module.exports = {
     Upload,
-    UploadMultipleFilesToS3
+    UploadMultipleFilesToS3,
+    UpdateUpload
 };

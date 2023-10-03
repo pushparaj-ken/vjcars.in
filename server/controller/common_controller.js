@@ -1,5 +1,6 @@
 const mysql = require('mysql');
-const connection = mysql.createConnection({
+var pool = mysql.createPool({
+    connectionLimit: 10,
     host: '68.178.153.196',
     user: 'vjcars',
     password: '=l].7!nb3GZ9',
@@ -18,10 +19,32 @@ const singleRowInsert = (tablename, info) => {
         // }
         // console.log(data1);
         var query = 'INSERT INTO ' + tablename + ' SET ?';
-
+		 delete info.tablename;
+		 delete info.url; 
+        console.log(info); 
 
         // Creating queries
-        connection.query(query, info, function (err, data) {
+        pool.query(query, info, function (err, data) {
+            if (err) {
+                reject(err);
+            }
+            resolve(data);
+        });
+    });
+};
+
+const singleRowUpdate = (tablename, info) => {
+    return new Promise((resolve, reject) => {
+
+        var query = 'UPDATE ' + tablename + ' SET ? where id = ?';
+
+        delete info.tablename;
+        delete info.row_id;
+		delete info.url;  
+        console.log("info-->", info);
+        const params = [info, info.id];
+        // Creating queries
+        pool.query(query, params, function (err, data) {
             if (err) {
                 reject(err);
             }
@@ -31,5 +54,6 @@ const singleRowInsert = (tablename, info) => {
 };
 
 module.exports = {
-    singleRowInsert
+    singleRowInsert,
+	singleRowUpdate
 }

@@ -10,19 +10,35 @@ const PORT = process.env.PORT || 8080;
 
 
 const app = express();
-const connection = mysql.createConnection({
+var pool = mysql.createPool({
+    connectionLimit: 10,
     host: '68.178.153.196',
     user: 'vjcars',
     password: '=l].7!nb3GZ9',
     database: 'vjcars'
 });
 
-connection.connect((err) => {
+pool.getConnection((err) => {
     if (err) {
         console.error('Error connecting to the database:', err);
         return;
     }
+
     console.log('Connected to the database!');
+
+    // Perform database operations here
+
+    pool.end((err) => {
+        if (err) {
+            console.error('Error closing the database connection:', err);
+            return;
+        }
+        console.log('Database connection closed.');
+    });
+});
+
+pool.on('error', (err) => {
+    console.error('Database connection error:', err);
 });
 
 // const query = 'SELECT * FROM tbl_car Where status =0';

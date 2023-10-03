@@ -11,7 +11,7 @@ const config = {
 
 var s3 = new AWS.S3(config);
 
-exports.upload = (file, fileName) => {
+ exports.upload = (file, fileName) => {
 
     return new Promise((resolve, reject) => {
         let params = {
@@ -27,7 +27,7 @@ exports.upload = (file, fileName) => {
         if (imgext.indexOf(extension_of_file) > -1) {
             Sharp(file)
                 .webp({ quality: 20 })
-                .resize(1000, 1000, {
+                .resize(null, null, {
                     fit: Sharp.fit.inside,
                     withoutEnlargement: true,
                 })
